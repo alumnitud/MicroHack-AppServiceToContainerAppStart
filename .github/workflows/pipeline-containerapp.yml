@@ -29,15 +29,6 @@ jobs:
       - name: Login to Azure
         run: az login --service-principal --username ${{ secrets.SERVICE_PRINCIPAL }} --password ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }} --tenant ${{ secrets.TENANT }}
 
-      - name: Get Latest Container Image Tag
-	id: get_tag
-	run: |
-	  TAG=$(az acr repository show-tags --name microhackregistry --repository microhackapp --orderby time_desc --output tsv --detail | head -n 1 | awk '{print $4}')
-	  NUMERIC_TAG=$(echo "$TAG" | grep -oE '[0-9]+')
-	  INCREMENTED_TAG=$((NUMERIC_TAG + 1))
-	  UPDATED_TAG=$(echo "$TAG" | sed "s/$NUMERIC_TAG/$INCREMENTED_TAG/")
-	  echo "::set-output name=image_tag::$UPDATED_TAG"
-
       - name: Build and Push Image
         run: |
           echo "${{ secrets.ACR_PASSWORD }}" | docker login -u "${{ secrets.ACR_USERNAME }}" --password-stdin containerregistryysmicrohack.azurecr.io &&
